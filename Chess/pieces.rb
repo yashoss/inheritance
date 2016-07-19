@@ -28,13 +28,14 @@ class Piece
     # require 'byebug'
     # debugger'
     unless checking
-      val.each do |mov|
+      val.deep_dup.each do |mov|
         copy = board.board_dup
         copy.start = self.position
         copy.end_pos = mov
         val.delete(mov) if copy.move2.in_check?(self.color)
       end
     end
+    p val, self.symbol, self.position if self.is_a?(Pawn)
     val
   end
 
@@ -71,7 +72,7 @@ attr_reader :moves
 
   def valid_moves(board, checking = false)
     unblock = []
-    #checking Up
+    #checking Down
     (1..7).each do |num|
       y = self.position[0] + num
       x = self.position[1]
@@ -80,7 +81,7 @@ attr_reader :moves
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
-    #checking Down
+    #checking Up
     (1..7).each do |num|
       y = self.position[0] - num
       x = self.position[1]
@@ -107,7 +108,7 @@ attr_reader :moves
     end
 
     unless checking
-      unblock.each do |mov|
+      unblock.deep_dup.each do |mov|
         copy = board.board_dup
         copy.start = self.position
         copy.end_pos = mov
@@ -170,7 +171,7 @@ end
     end
 
     unless checking
-      unblock.each do |mov|
+      unblock.deep_dup.each do |mov|
         copy = board.board_dup
         copy.start = self.position
         copy.end_pos = mov
@@ -266,7 +267,7 @@ attr_reader :moves
     end
 
     unless checking
-      unblock.each do |mov|
+      unblock.deep_dup.each do |mov|
         copy = board.board_dup
         copy.start = self.position
         copy.end_pos = mov
@@ -310,6 +311,9 @@ attr_reader :moves
               [2,0], [-2,0]]
     super
   end
+
+
+
 end
 
 class NullPiece

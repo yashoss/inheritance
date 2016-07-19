@@ -9,7 +9,6 @@ class Board
      populate
      @start = nil
      @end_pos = nil
-     @turn = 'white'
    end
 
    def move

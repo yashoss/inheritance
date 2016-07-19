@@ -61,7 +61,7 @@ def show_single_key
         @board.move
         @board.start = nil
         @board.end_pos = nil
-        system('clear')
+        # system('clear')
         render
       else
         @board.start = nil
