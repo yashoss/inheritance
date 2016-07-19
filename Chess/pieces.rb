@@ -2,7 +2,7 @@ require 'singleton'
 
 class Piece
 
-  attr_reader :color
+  attr_reader :color, :symbol
   attr_accessor :position
 
   def initialize(color, symbol, position)
@@ -18,18 +18,20 @@ class Piece
     @symbol
   end
 
-  def self.valid_moves(grid)
+  def valid_moves(board)
     val = []
-    self.class.moves.each do |square|
+    self.moves.each do |square|
       y = self.position[0] + square[0]
       x = self.position[1] + square[1]
-      val << [y,x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == grid[y][x].color
+      val << [y,x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
     end
-
+    # require 'byebug'
+    # debugger
     val.each do |mov|
-      board.start = self.position
-      board.end_pos = mov
-      val.delete(mov) if board.move.in_check?(self.color)
+      copy = board.board_dup
+      copy.start = self.position
+      copy.end_pos = mov
+      val.delete(mov) if copy.move2.in_check?(self.color)
     end
     val
   end
@@ -65,6 +67,50 @@ attr_reader :moves
      super
   end
 
+  def self.valid_moves(board)
+    unblock = []
+    #checking Up
+    (1..7).each do |num|
+      y = self.postion[0] + num
+      x = self.postion[1]
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    #checking Down
+    (1..7).each do |num|
+      y = self.postion[0] - num
+      x = self.postion[1]
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    #checking Right
+    (1..7).each do |num|
+      y = self.postion[0]
+      x = self.postion[1] + num
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    (1..7).each do |num|
+      y = self.postion[0]
+      x = self.postion[1] - num
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    unblocked.each do |mov|
+      copy = board.board_dup
+      copy.start = self.position
+      copy.end_pos = mov
+      unblocked.delete(mov) if copy.move2.in_check?(self.color)
+    end
+    unblocked
+
+  end
+
+
 
 end
 
@@ -82,6 +128,45 @@ attr_reader :moves
   end
 end
 
+  def self.valid_moves(board)
+    (1..7).each do |num|
+      y = self.postion[0] + num
+      x = self.postion[1] + num
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    (1..7).each do |num|
+      y = self.postion[0] - num
+      x = self.postion[1] - num
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    (1..7).each do |num|
+      y = self.postion[0] - num
+      x = self.postion[1] + num
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    (1..7).each do |num|
+      y = self.postion[0] + num
+      x = self.postion[1] - num
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    unblocked.each do |mov|
+      copy = board.board_dup
+      copy.start = self.position
+      copy.end_pos = mov
+      unblocked.delete(mov) if copy.move2.in_check?(self.color)
+    end
+    unblocked
+
+  end
+
 class Queen < SlidingPiece
 
 attr_reader :moves
@@ -96,6 +181,75 @@ attr_reader :moves
       end
     super
   end
+
+  def self.valid_moves(board)
+    (1..7).each do |num|
+      y = self.postion[0] + num
+      x = self.postion[1] + num
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    (1..7).each do |num|
+      y = self.postion[0] - num
+      x = self.postion[1] - num
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    (1..7).each do |num|
+      y = self.postion[0] - num
+      x = self.postion[1] + num
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    (1..7).each do |num|
+      y = self.postion[0] + num
+      x = self.postion[1] - num
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    (1..7).each do |num|
+      y = self.postion[0] + num
+      x = self.postion[1]
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    #checking Down
+    (1..7).each do |num|
+      y = self.postion[0] - num
+      x = self.postion[1]
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    #checking Right
+    (1..7).each do |num|
+      y = self.postion[0]
+      x = self.postion[1] + num
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    (1..7).each do |num|
+      y = self.postion[0]
+      x = self.postion[1] - num
+      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      break unless board.grid[y][x].is_a?(NullPiece)
+    end
+
+    unblocked.each do |mov|
+      copy = board.board_dup
+      copy.start = self.position
+      copy.end_pos = mov
+      unblocked.delete(mov) if copy.move2.in_check?(self.color)
+    end
+    unblocked
+  end
+
 end
 
 class Knight < SteppingPiece
@@ -105,7 +259,6 @@ attr_reader :moves
   def initialize(color, symbol, position)
     @moves = [[2,1], [1,2], [-1,-2], [-1,2], [1,-2], [2,-1], [-2,1], [-2,-1]]
     super
-
   end
 
 end

@@ -13,11 +13,22 @@ class Board
 
    def move
      raise "No piece at #{@start}" if @grid[@start[0]][@start[1]].is_a?(NullPiece)
-     raise "Invalid move to #{@end_pos}" unless @grid[@start].valid_move?(@grid.deep_dup)
-       @grid[@end_pos[0]][@end_pos[1]] = @grid[@start[0]][@start[1]]
-       @grid[@end_pos[0]][@end_pos[1]].position = @end_pos
-       @grid[@start[0]][@start[1]] = NullPiece.instance
+       if @grid[@start[0]][@start[1]].valid_moves(self).include?(@end_pos)
+         @grid[@end_pos[0]][@end_pos[1]] = @grid[@start[0]][@start[1]]
+         @grid[@end_pos[0]][@end_pos[1]].position = @end_pos
+         @grid[@start[0]][@start[1]] = NullPiece.instance
+       else
+         @start = nil
+         @end_pos = nil
+       end
 
+   end
+
+   def move2
+     @grid[@end_pos[0]][@end_pos[1]] = @grid[@start[0]][@start[1]]
+     @grid[@end_pos[0]][@end_pos[1]].position = @end_pos
+     @grid[@start[0]][@start[1]] = NullPiece.instance
+     self
    end
 
    def [](pos)
@@ -58,6 +69,7 @@ class Board
    end
 
    def in_check?(color)
+     return false if self.is_a?(NullPiece)
      king = []
      @grid.each_with_index do |row, y|
        row.each_with_index do |col, x|
@@ -76,7 +88,7 @@ class Board
 
      @grid.each do |row|
        row.each do |col|
-         return true if col.color == oppo_color && col.valid_moves(@board.deep_dup).include?(king)
+         return true if col.color == oppo_color && col.valid_moves(self).include?(king)
         end
      end
      false
@@ -100,6 +112,21 @@ class Board
 
    end
 
+
+   def board_dup
+     copy = Board.new
+     self.grid.each_with_index do |row, y|
+       row.each_with_index do |col, x|
+         if col.is_a?(NullPiece)
+           copy.grid[y][x] = NullPiece.instance
+         else
+           copy.grid[y][x] = col.class.new(col.color, col.symbol, col.position)
+         end
+       end
+     end
+     copy
+   end
+
 end #board class
 
 class Array
@@ -110,4 +137,5 @@ class Array
     end
     new_array
   end
+
 end
