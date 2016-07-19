@@ -18,6 +18,7 @@ class Piece
     @symbol
   end
 
+  # TODO: move to steppable
   def valid_moves(board, checking = false)
     val = []
     self.moves.each do |square|
@@ -27,6 +28,8 @@ class Piece
     end
     # require 'byebug'
     # debugger'
+
+    # TODO: abstract to its own method
     unless checking
       val.deep_dup.each do |mov|
         copy = board.board_dup
@@ -43,17 +46,17 @@ end
 
 class SlidingPiece < Piece
 
-  def initialize(color, symbol, position)
-    super
-  end
+  # def initialize(color, symbol, position)
+  #   super
+  # end
 
 end
 
 class SteppingPiece < Piece
 
-  def initialize(color, symbol, position)
-    super
-  end
+  # def initialize(color, symbol, position)
+  #   super
+  # end
 
 end
 
@@ -61,6 +64,7 @@ class Rook < SlidingPiece
 
 attr_reader :moves
 
+  #TODO: replace with move diffs with just the four directions
   def initialize(color, symbol, position)
     @moves = []
      (-7..7).each do |num|
@@ -70,6 +74,9 @@ attr_reader :moves
      super
   end
 
+  # TODO: move this to sliding piece
+  # TODO: go through move_diffs until you hit an edge or piece
+  # Replace four loops with "each" through the move diffs
   def valid_moves(board, checking = false)
     unblock = []
     #checking Down
@@ -312,6 +319,7 @@ attr_reader :moves
     super
   end
 
+  # TODO: break into check_capture, check_first_move, check_collison
   def valid_moves(board, checking = false)
 
     @moves = [[1,1], [1,0], [-1,-1], [-1,0], [-1,1], [1,-1],

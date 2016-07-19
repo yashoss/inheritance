@@ -12,11 +12,11 @@ class Board
    end
 
    def move
-     raise "No piece at #{@start}" if @grid[@start[0]][@start[1]].is_a?(NullPiece)
-       if @grid[@start[0]][@start[1]].valid_moves(self).include?(@end_pos)
-         @grid[@end_pos[0]][@end_pos[1]] = @grid[@start[0]][@start[1]]
-         @grid[@end_pos[0]][@end_pos[1]].position = @end_pos
-         @grid[@start[0]][@start[1]] = NullPiece.instance
+     raise "No piece at #{@start}" if self[@start].is_a?(NullPiece)
+       if self[@start].valid_moves(self).include?(@end_pos)
+         self[@end_pos] = self[@start]
+         self[@end_pos].position = @end_pos
+         self[@start] = NullPiece.instance
        else
          @start = nil
          @end_pos = nil
@@ -25,9 +25,9 @@ class Board
    end
 
    def move2
-     @grid[@end_pos[0]][@end_pos[1]] = @grid[@start[0]][@start[1]]
-     @grid[@end_pos[0]][@end_pos[1]].position = @end_pos
-     @grid[@start[0]][@start[1]] = NullPiece.instance
+     self[@end_pos] = self[@start]
+     self[@end_pos].position = @end_pos
+     self[@start] = NullPiece.instance
      self
    end
 
@@ -37,11 +37,12 @@ class Board
    end
 
    def []=(pos, value)
-     @grid[*pos] = value
+     x, y = pos
+     @grid[x][y] = value
    end
 
    def populate
-
+     #TODO: use the syntethic sugar
      @grid[0][0], @grid[0][7] = Rook.new('black',"\u265C", [0,0]), Rook.new('black',"\u265C", [0,7])
      @grid[0][1], @grid[0][6] = Knight.new('black',"\u265E", [0,1]), Knight.new('black',"\u265E", [0,6])
      @grid[0][2], @grid[0][5] = Bishop.new('black', "\u265D", [0,2]), Bishop.new('black', "\u265D", [0,5])
