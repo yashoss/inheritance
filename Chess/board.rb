@@ -9,6 +9,7 @@ class Board
      populate
      @start = nil
      @end_pos = nil
+     @turn = 'white'
    end
 
    def move
@@ -88,7 +89,7 @@ class Board
 
      @grid.each do |row|
        row.each do |col|
-         return true if col.color == oppo_color && col.valid_moves(self).include?(king)
+         return true if col.color == oppo_color && col.valid_moves(self, true).include?(king)
         end
      end
      false

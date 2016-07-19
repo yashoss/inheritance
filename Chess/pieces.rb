@@ -18,7 +18,7 @@ class Piece
     @symbol
   end
 
-  def valid_moves(board)
+  def valid_moves(board, checking = false)
     val = []
     self.moves.each do |square|
       y = self.position[0] + square[0]
@@ -26,12 +26,14 @@ class Piece
       val << [y,x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
     end
     # require 'byebug'
-    # debugger
-    val.each do |mov|
-      copy = board.board_dup
-      copy.start = self.position
-      copy.end_pos = mov
-      val.delete(mov) if copy.move2.in_check?(self.color)
+    # debugger'
+    unless checking
+      val.each do |mov|
+        copy = board.board_dup
+        copy.start = self.position
+        copy.end_pos = mov
+        val.delete(mov) if copy.move2.in_check?(self.color)
+      end
     end
     val
   end
@@ -40,7 +42,7 @@ end
 
 class SlidingPiece < Piece
 
-  def initialize(color, symbol, postion)
+  def initialize(color, symbol, position)
     super
   end
 
@@ -67,46 +69,52 @@ attr_reader :moves
      super
   end
 
-  def self.valid_moves(board)
+  def valid_moves(board, checking = false)
     unblock = []
     #checking Up
     (1..7).each do |num|
-      y = self.postion[0] + num
-      x = self.postion[1]
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0] + num
+      x = self.position[1]
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
     #checking Down
     (1..7).each do |num|
-      y = self.postion[0] - num
-      x = self.postion[1]
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0] - num
+      x = self.position[1]
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
     #checking Right
     (1..7).each do |num|
-      y = self.postion[0]
-      x = self.postion[1] + num
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0]
+      x = self.position[1] + num
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
     (1..7).each do |num|
-      y = self.postion[0]
-      x = self.postion[1] - num
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0]
+      x = self.position[1] - num
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
-    unblocked.each do |mov|
-      copy = board.board_dup
-      copy.start = self.position
-      copy.end_pos = mov
-      unblocked.delete(mov) if copy.move2.in_check?(self.color)
+    unless checking
+      unblock.each do |mov|
+        copy = board.board_dup
+        copy.start = self.position
+        copy.end_pos = mov
+        unblock.delete(mov) if copy.move2.in_check?(self.color)
+      end
     end
-    unblocked
+    unblock
 
   end
 
@@ -128,42 +136,48 @@ attr_reader :moves
   end
 end
 
-  def self.valid_moves(board)
+  def valid_moves(board, checking = false)
     (1..7).each do |num|
-      y = self.postion[0] + num
-      x = self.postion[1] + num
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0] + num
+      x = self.position[1] + num
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
     (1..7).each do |num|
-      y = self.postion[0] - num
-      x = self.postion[1] - num
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0] - num
+      x = self.position[1] - num
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
     (1..7).each do |num|
-      y = self.postion[0] - num
-      x = self.postion[1] + num
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0] - num
+      x = self.position[1] + num
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
     (1..7).each do |num|
-      y = self.postion[0] + num
-      x = self.postion[1] - num
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0] + num
+      x = self.position[1] - num
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
-    unblocked.each do |mov|
-      copy = board.board_dup
-      copy.start = self.position
-      copy.end_pos = mov
-      unblocked.delete(mov) if copy.move2.in_check?(self.color)
+    unless checking
+      unblock.each do |mov|
+        copy = board.board_dup
+        copy.start = self.position
+        copy.end_pos = mov
+        unblock.delete(mov) if copy.move2.in_check?(self.color)
+      end
     end
-    unblocked
+    unblock
 
   end
 
@@ -182,72 +196,84 @@ attr_reader :moves
     super
   end
 
-  def self.valid_moves(board)
+  def valid_moves(board, checking = false)
+    unblock = []
+
     (1..7).each do |num|
-      y = self.postion[0] + num
-      x = self.postion[1] + num
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0] + num
+      x = self.position[1] + num
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
     (1..7).each do |num|
-      y = self.postion[0] - num
-      x = self.postion[1] - num
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0] - num
+      x = self.position[1] - num
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
     (1..7).each do |num|
-      y = self.postion[0] - num
-      x = self.postion[1] + num
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0] - num
+      x = self.position[1] + num
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
     (1..7).each do |num|
-      y = self.postion[0] + num
-      x = self.postion[1] - num
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0] + num
+      x = self.position[1] - num
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
     (1..7).each do |num|
-      y = self.postion[0] + num
-      x = self.postion[1]
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0] + num
+      x = self.position[1]
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
     #checking Down
     (1..7).each do |num|
-      y = self.postion[0] - num
-      x = self.postion[1]
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0] - num
+      x = self.position[1]
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
     #checking Right
     (1..7).each do |num|
-      y = self.postion[0]
-      x = self.postion[1] + num
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0]
+      x = self.position[1] + num
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
     (1..7).each do |num|
-      y = self.postion[0]
-      x = self.postion[1] - num
-      unblock << [y, x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      y = self.position[0]
+      x = self.position[1] - num
+      break if x < 0 || x > 7 || y < 0 || y > 7
+      unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
-    unblocked.each do |mov|
-      copy = board.board_dup
-      copy.start = self.position
-      copy.end_pos = mov
-      unblocked.delete(mov) if copy.move2.in_check?(self.color)
+    unless checking
+      unblock.each do |mov|
+        copy = board.board_dup
+        copy.start = self.position
+        copy.end_pos = mov
+        unblock.delete(mov) if copy.move2.in_check?(self.color)
+      end
     end
-    unblocked
+    unblock
   end
 
 end
