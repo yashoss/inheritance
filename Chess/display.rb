@@ -12,7 +12,9 @@ attr_accessor :board
   end
 
   def render
+    puts ""
     @board.grid.each_with_index do |row, y|
+      print " #{8 - y} "
       row.each_with_index do |col, x|
         if @board.start == [y, x]
           print " #{col} ".black.on_yellow
@@ -26,6 +28,7 @@ attr_accessor :board
       end
       puts ""
     end
+    puts "    A  B  C  D  E  F  G  H "
   end
 
 end

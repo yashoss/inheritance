@@ -26,8 +26,6 @@ class Piece
       x = self.position[1] + square[1]
       val << [y,x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
     end
-    # require 'byebug'
-    # debugger'
 
     # TODO: abstract to its own method
     unless checking
