@@ -35,7 +35,7 @@ class Piece
         val.delete(mov) if copy.move2.in_check?(self.color)
       end
     end
-    p val, self.symbol, self.position if self.is_a?(Pawn)
+    puts " here" if self.is_a?(Pawn)
     val
   end
 
@@ -61,7 +61,7 @@ class Rook < SlidingPiece
 
 attr_reader :moves
 
-  def initialize(color, symbol, positon)
+  def initialize(color, symbol, position)
     @moves = []
      (-7..7).each do |num|
        @moves << [0,num]
@@ -307,9 +307,77 @@ class Pawn < Piece
 attr_reader :moves
 
   def initialize(color, symbol, position)
-    @moves = [[1,1], [0,1], [1,0], [-1,-1], [-1,0], [0,-1], [-1,1], [1,-1],
+    @moves = [[1,1], [1,0], [-1,-1], [-1,0], [-1,1], [1,-1],
               [2,0], [-2,0]]
     super
+  end
+
+  def valid_moves(board, checking = false)
+
+    @moves = [[1,1], [1,0], [-1,-1], [-1,0], [-1,1], [1,-1],
+              [2,0], [-2,0]]
+
+    if self.color == 'black'
+      y = self.position[0]
+      x = self.position[1]
+
+      @moves.reject! { |move| move[0] == -1 || move[0] == -2}
+      if y + 2 > 7 || self.position[0] != 1 || !board.grid[y+2][x].is_a?(NullPiece) || !board.grid[y+1][x].is_a?(NullPiece)
+        @moves.delete([2,0])
+      end
+
+      if y + 1 > 7 || !board.grid[y+1][x].is_a?(NullPiece)
+        @moves.delete([1,0])
+      end
+
+      if board.grid[y+1][x+1].nil? || !board.grid[y+1][x+1].color == 'white' || board.grid[y+1][x+1].is_a?(NullPiece)
+        @moves.delete([1,1])
+      end
+
+      if board.grid[y+1][x-1].nil? || !board.grid[y+1][x-1].color == 'white' || board.grid[y+1][x-1].is_a?(NullPiece)
+        @moves.delete([1,-1])
+      end
+    else
+      y = self.position[0]
+      x = self.position[1]
+
+      @moves.reject! { |move| move[0] == 1 || move[0] == 2}
+      if y - 2 < 0 || self.position[0] != 6 || !board.grid[y-2][x].is_a?(NullPiece) || !board.grid[y-1][x].is_a?(NullPiece)
+        @moves.delete([-2,0])
+      end
+
+      if y - 1 < 0 || !board.grid[y-1][x].is_a?(NullPiece)
+        @moves.delete([-1,0])
+      end
+
+      if board.grid[y-1][x-1].nil? || !board.grid[y-1][x-1].color == 'black' || board.grid[y-1][x-1].is_a?(NullPiece)
+        @moves.delete([-1,-1])
+      end
+
+      if board.grid[y-1][x+1].nil? || !board.grid[y-1][x+1].color == 'black' || board.grid[y-1][x+1].is_a?(NullPiece)
+        @moves.delete([-1,1])
+      end
+    end
+
+
+
+
+    val = []
+    self.moves.each do |square|
+      y = self.position[0] + square[0]
+      x = self.position[1] + square[1]
+      val << [y,x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+    end
+
+    unless checking
+      val.deep_dup.each do |mov|
+        copy = board.board_dup
+        copy.start = self.position
+        copy.end_pos = mov
+        val.delete(mov) if copy.move2.in_check?(self.color)
+      end
+    end
+    val
   end
 
 
@@ -323,6 +391,7 @@ class NullPiece
   end
 
   def color()
+    nil
   end
 
   def to_s()

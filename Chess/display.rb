@@ -43,25 +43,22 @@ ensure
   return input
 end
 
-# oringal case statement from:
-# http://www.alecjacobson.com/weblog/?p=75
-def show_single_key
+def select(color)
   system('clear')
   render
-
+  @board.start = nil
+  @board.end_pos = nil
   while @board.end_pos.nil?
     c = read_char
 
     case c
     when "\r"
-      if @board.start.nil?
+      if @board.start.nil? && @board.grid[@cursor[0]][@cursor[1]].color == color && !@board.grid[@cursor[0]][@cursor[1]].is_a?(NullPiece)
         @board.start = @cursor.dup
-      elsif @cursor != @board.start
+      elsif !@board.start.nil? && @cursor != @board.start 
         @board.end_pos = @cursor.dup
         @board.move
-        @board.start = nil
-        @board.end_pos = nil
-        # system('clear')
+        system('clear')
         render
       else
         @board.start = nil

@@ -95,21 +95,15 @@ class Board
    end
 
    def checkmate?(color)
-     dub = @grid.deep_dup
-     @grid.each_with_index do |row, y|
+     dub = self.board_dup
+     dub.grid.each_with_index do |row, y|
        row.each_with_index do |col, x|
         if col.color == color
-          col.valid_moves.each do |try|
-            dub.start = [y,x]
-            dub.end_pos = try
-            dub.move
-            return false unless dub.in_check?(color)
-          end
+          return false unless col.valid_moves(self, false).empty?
         end
        end
      end
-     true
-
+     return true
    end
 
 
