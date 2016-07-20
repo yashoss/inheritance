@@ -19,24 +19,15 @@ class Piece
   end
 
   # TODO: move to steppable
-  def valid_moves(board, checking = false)
-    val = []
-    self.moves.each do |square|
-      y = self.position[0] + square[0]
-      x = self.position[1] + square[1]
-      val << [y,x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
-    end
 
     # TODO: abstract to its own method
-    unless checking
+  def no_check_moves(val, board)
       val.deep_dup.each do |mov|
         copy = board.board_dup
         copy.start = self.position
         copy.end_pos = mov
         val.delete(mov) if copy.move2.in_check?(self.color)
       end
-    end
-    puts " here" if self.is_a?(Pawn)
     val
   end
 
@@ -55,6 +46,17 @@ class SteppingPiece < Piece
   # def initialize(color, symbol, position)
   #   super
   # end
+  def valid_moves(board, checking = false)
+    val = []
+    p "this one" if self.is_a?(Bishop)
+    self.moves.each do |square|
+      y = self.position[0] + square[0]
+      x = self.position[1] + square[1]
+      val << [y,x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+    end
+    val = no_check_moves(val, board) unless checking
+    val
+  end
 
 end
 
@@ -140,9 +142,10 @@ attr_reader :moves
       end
     super
   end
-end
+
 
   def valid_moves(board, checking = false)
+    unblock = []
     (1..7).each do |num|
       y = self.position[0] + num
       x = self.position[1] + num
@@ -186,6 +189,7 @@ end
     unblock
 
   end
+end
 
 class Queen < SlidingPiece
 
