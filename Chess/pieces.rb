@@ -18,8 +18,6 @@ class Piece
     @symbol
   end
 
-  # TODO: move to steppable
-
     # TODO: abstract to its own method
   def no_check_moves(val, board)
       val.deep_dup.each do |mov|
@@ -31,28 +29,25 @@ class Piece
     val
   end
 
+  def out_of_range?(y, x)
+    x < 0 || x > 7 || y < 0 || y > 7
+  end
+
 end
 
 class SlidingPiece < Piece
-
-  # def initialize(color, symbol, position)
-  #   super
-  # end
-
+ #Ducky
 end
 
 class SteppingPiece < Piece
 
-  # def initialize(color, symbol, position)
-  #   super
-  # end
   def valid_moves(board, checking = false)
     val = []
     p "this one" if self.is_a?(Bishop)
     self.moves.each do |square|
       y = self.position[0] + square[0]
       x = self.position[1] + square[1]
-      val << [y,x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      val << [y,x] unless out_of_range?(y,x) || self.color == board.grid[y][x].color
     end
     val = no_check_moves(val, board) unless checking
     val
@@ -62,15 +57,15 @@ end
 
 class Rook < SlidingPiece
 
-attr_reader :moves
+  attr_reader :moves
 
   #TODO: replace with move diffs with just the four directions
   def initialize(color, symbol, position)
-    @moves = []
-     (-7..7).each do |num|
-       @moves << [0,num]
-       @moves << [num,0]
-     end
+    # @moves = []
+    #  (-7..7).each do |num|
+    #    @moves << [0,num]
+    #    @moves << [num,0]
+    #  end
      super
   end
 
@@ -83,7 +78,7 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0] + num
       x = self.position[1]
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
@@ -92,7 +87,7 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0] - num
       x = self.position[1]
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
@@ -101,7 +96,7 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0]
       x = self.position[1] + num
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
@@ -109,19 +104,12 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0]
       x = self.position[1] - num
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
-    unless checking
-      unblock.deep_dup.each do |mov|
-        copy = board.board_dup
-        copy.start = self.position
-        copy.end_pos = mov
-        unblock.delete(mov) if copy.move2.in_check?(self.color)
-      end
-    end
+    unblock = no_check_moves(unblock, board) unless checking
     unblock
 
   end
@@ -135,11 +123,11 @@ class Bishop < SlidingPiece
 attr_reader :moves
 
   def initialize(color, symbol, position)
-    @moves = []
-      (-7..7).each do |num|
-        @moves << [num,num]
-        @moves << [-num,num]
-      end
+    # @moves = []
+    #   (-7..7).each do |num|
+    #     @moves << [num,num]
+    #     @moves << [-num,num]
+    #   end
     super
   end
 
@@ -149,7 +137,7 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0] + num
       x = self.position[1] + num
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
@@ -157,7 +145,7 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0] - num
       x = self.position[1] - num
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
@@ -165,7 +153,7 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0] - num
       x = self.position[1] + num
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
@@ -173,19 +161,12 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0] + num
       x = self.position[1] - num
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
-    unless checking
-      unblock.deep_dup.each do |mov|
-        copy = board.board_dup
-        copy.start = self.position
-        copy.end_pos = mov
-        unblock.delete(mov) if copy.move2.in_check?(self.color)
-      end
-    end
+    unblock = no_check_moves(unblock, board) unless checking
     unblock
 
   end
@@ -196,13 +177,13 @@ class Queen < SlidingPiece
 attr_reader :moves
 
   def initialize(color, symbol, position)
-    @moves = []
-      (-7..7).each do |num|
-        @moves << [0,num]
-        @moves << [num,0]
-        @moves << [num,num]
-        @moves << [-num,num]
-      end
+    # @moves = []
+    #   (-7..7).each do |num|
+    #     @moves << [0,num]
+    #     @moves << [num,0]
+    #     @moves << [num,num]
+    #     @moves << [-num,num]
+    #   end
     super
   end
 
@@ -212,7 +193,7 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0] + num
       x = self.position[1] + num
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
@@ -220,7 +201,7 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0] - num
       x = self.position[1] - num
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
@@ -228,7 +209,7 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0] - num
       x = self.position[1] + num
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
@@ -236,7 +217,7 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0] + num
       x = self.position[1] - num
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
@@ -244,7 +225,7 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0] + num
       x = self.position[1]
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
@@ -253,7 +234,7 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0] - num
       x = self.position[1]
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
@@ -262,7 +243,7 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0]
       x = self.position[1] + num
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
@@ -270,19 +251,12 @@ attr_reader :moves
     (1..7).each do |num|
       y = self.position[0]
       x = self.position[1] - num
-      break if x < 0 || x > 7 || y < 0 || y > 7
+      break if out_of_range?(y,x)
       unblock << [y, x] unless self.color == board.grid[y][x].color
       break unless board.grid[y][x].is_a?(NullPiece)
     end
 
-    unless checking
-      unblock.deep_dup.each do |mov|
-        copy = board.board_dup
-        copy.start = self.position
-        copy.end_pos = mov
-        unblock.delete(mov) if copy.move2.in_check?(self.color)
-      end
-    end
+    unblock = no_check_moves(unblock, board) unless checking
     unblock
   end
 
@@ -376,17 +350,10 @@ attr_reader :moves
     self.moves.each do |square|
       y = self.position[0] + square[0]
       x = self.position[1] + square[1]
-      val << [y,x] unless x < 0 || x > 7 || y < 0 || y > 7 || self.color == board.grid[y][x].color
+      val << [y,x] unless out_of_range?(y,x) || self.color == board.grid[y][x].color
     end
 
-    unless checking
-      val.deep_dup.each do |mov|
-        copy = board.board_dup
-        copy.start = self.position
-        copy.end_pos = mov
-        val.delete(mov) if copy.move2.in_check?(self.color)
-      end
-    end
+    val = no_check_moves(val, board) unless checking
     val
   end
 
