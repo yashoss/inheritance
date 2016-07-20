@@ -37,13 +37,29 @@ end
 
 class SlidingPiece < Piece
  #Ducky
+ def valid_moves(board, checking = false)
+   unblock = []
+   self.direction.each do |dir|
+     y = self.position[0]
+     x = self.position[1]
+     7.times do
+       y += dir[0]
+       x += dir[1]
+       break if out_of_range?(y,x)
+       unblock << [y, x] unless self.color == board.grid[y][x].color
+       break unless board.grid[y][x].is_a?(NullPiece)
+     end
+   end
+   unblock == no_check_moves(unblock, board) unless checking
+   unblock
+ end
+
 end
 
 class SteppingPiece < Piece
 
   def valid_moves(board, checking = false)
     val = []
-    p "this one" if self.is_a?(Bishop)
     self.moves.each do |square|
       y = self.position[0] + square[0]
       x = self.position[1] + square[1]
@@ -57,207 +73,34 @@ end
 
 class Rook < SlidingPiece
 
-  attr_reader :moves
+  attr_reader :moves, :direction
+
 
   #TODO: replace with move diffs with just the four directions
   def initialize(color, symbol, position)
-    # @moves = []
-    #  (-7..7).each do |num|
-    #    @moves << [0,num]
-    #    @moves << [num,0]
-    #  end
-     super
+    @direction = [[1,0],[-1,0],[0,1],[0,-1]]
+    super
   end
-
-  # TODO: move this to sliding piece
-  # TODO: go through move_diffs until you hit an edge or piece
-  # Replace four loops with "each" through the move diffs
-  def valid_moves(board, checking = false)
-    unblock = []
-    #checking Down
-    (1..7).each do |num|
-      y = self.position[0] + num
-      x = self.position[1]
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    #checking Up
-    (1..7).each do |num|
-      y = self.position[0] - num
-      x = self.position[1]
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    #checking Right
-    (1..7).each do |num|
-      y = self.position[0]
-      x = self.position[1] + num
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    (1..7).each do |num|
-      y = self.position[0]
-      x = self.position[1] - num
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    unblock = no_check_moves(unblock, board) unless checking
-    unblock
-
-  end
-
-
-
 end
 
 class Bishop < SlidingPiece
 
-attr_reader :moves
+attr_reader :moves, :direction
 
   def initialize(color, symbol, position)
-    # @moves = []
-    #   (-7..7).each do |num|
-    #     @moves << [num,num]
-    #     @moves << [-num,num]
-    #   end
+    @direction = [[1,1],[1,-1],[-1,1],[-1,-1]]
     super
   end
 
-
-  def valid_moves(board, checking = false)
-    unblock = []
-    (1..7).each do |num|
-      y = self.position[0] + num
-      x = self.position[1] + num
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    (1..7).each do |num|
-      y = self.position[0] - num
-      x = self.position[1] - num
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    (1..7).each do |num|
-      y = self.position[0] - num
-      x = self.position[1] + num
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    (1..7).each do |num|
-      y = self.position[0] + num
-      x = self.position[1] - num
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    unblock = no_check_moves(unblock, board) unless checking
-    unblock
-
-  end
 end
 
 class Queen < SlidingPiece
 
-attr_reader :moves
+attr_reader :moves, :direction
 
   def initialize(color, symbol, position)
-    # @moves = []
-    #   (-7..7).each do |num|
-    #     @moves << [0,num]
-    #     @moves << [num,0]
-    #     @moves << [num,num]
-    #     @moves << [-num,num]
-    #   end
+    @direction = [[1,1],[1,-1],[-1,1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]]
     super
-  end
-
-  def valid_moves(board, checking = false)
-    unblock = []
-
-    (1..7).each do |num|
-      y = self.position[0] + num
-      x = self.position[1] + num
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    (1..7).each do |num|
-      y = self.position[0] - num
-      x = self.position[1] - num
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    (1..7).each do |num|
-      y = self.position[0] - num
-      x = self.position[1] + num
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    (1..7).each do |num|
-      y = self.position[0] + num
-      x = self.position[1] - num
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    (1..7).each do |num|
-      y = self.position[0] + num
-      x = self.position[1]
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    #checking Down
-    (1..7).each do |num|
-      y = self.position[0] - num
-      x = self.position[1]
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    #checking Right
-    (1..7).each do |num|
-      y = self.position[0]
-      x = self.position[1] + num
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    (1..7).each do |num|
-      y = self.position[0]
-      x = self.position[1] - num
-      break if out_of_range?(y,x)
-      unblock << [y, x] unless self.color == board.grid[y][x].color
-      break unless board.grid[y][x].is_a?(NullPiece)
-    end
-
-    unblock = no_check_moves(unblock, board) unless checking
-    unblock
   end
 
 end
@@ -343,9 +186,6 @@ attr_reader :moves
       end
     end
 
-
-
-
     val = []
     self.moves.each do |square|
       y = self.position[0] + square[0]
@@ -356,8 +196,6 @@ attr_reader :moves
     val = no_check_moves(val, board) unless checking
     val
   end
-
-
 
 end
 
